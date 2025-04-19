@@ -24,15 +24,17 @@ const unsigned int SCR_HEIGHT = 1080;
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
-float width = 4.0f;
-float height = 2.0f;
+float roomWidth = 4.0f;
+float roomHeight = 2.0f;
+float portWidth = 1.0f;
+float portHeight = 1.0f;
 std::vector<float> interPos;
 std::vector<unsigned int> interInd;
 
 glm::vec3 firstPort(0,0,0);
 glm::vec3 secondPort(0,0,0);
 
-Camera camera(glm::vec3(0.0f, -height + 0.3f, 1.0f), 
+Camera camera(glm::vec3(0.0f, -2.0 + 0.3f, 1.0f), 
               glm::vec3(0.0f, 1.0f, 0.0f), 
               -90.0f, 0.0f);
 
@@ -49,49 +51,49 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
 std::vector<float> positions;
        
-std::pair<std::vector<float>, std::vector<unsigned int>> createWalls() {
+std::pair<std::vector<float>, std::vector<unsigned int>> createWalls(float width, float height) {
     float texCount = 4.0f; // Controls how many times the texture repeats
     float modifier = 4.0f;
     
     
     std::vector<float> vertices = {
-        // Format: x, y, z, tex_x, tex_y
+        // Format: x, y, z, normal_x, normal_y, normal_z, tex_x, tex_y
         
-        // Bottom
-        -width, -height, -width,   0.0f, 0.0f,              
-        width, -height, -width,    texCount, 0.0f,     
-        width, -height, width,     texCount, texCount, 
-        -width, -height, width,    0.0f, texCount,       
+        // Bottom 
+        -width, -height, -width,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,              
+        width, -height, -width,    0.0f, 1.0f, 0.0f,   texCount, 0.0f,     
+        width, -height, width,     0.0f, 1.0f, 0.0f,   texCount, texCount, 
+        -width, -height, width,    0.0f, 1.0f, 0.0f,   0.0f, texCount,       
         
         // Top 
-        -width, 0.0f, -width,    0.0f, 0.0f,            
-        width, 0.0f, -width,     texCount, 0.0f,         
-        width, 0.0f, width,      texCount, texCount,   
-        -width, 0.0f, width,     0.0f, texCount,       
+        -width, 0.0f, -width,    0.0f, -1.0f, 0.0f,   0.0f, 0.0f,            
+        width, 0.0f, -width,     0.0f, -1.0f, 0.0f,   texCount, 0.0f,         
+        width, 0.0f, width,      0.0f, -1.0f, 0.0f,   texCount, texCount,   
+        -width, 0.0f, width,     0.0f, -1.0f, 0.0f,   0.0f, texCount,       
         
-        // Front
-        -width, -height, width,    0.0f, 0.0f,           
-        width, -height, width,     texCount, 0.0f,      
-        width, 0.0f, width,      texCount, texCount/modifier,    
-        -width, 0.0f, width,     0.0f, texCount/modifier,         
+        // Front (-z)
+        -width, -height, width,    0.0f, 0.0f, -1.0f,   0.0f, 0.0f,           
+        width, -height, width,     0.0f, 0.0f, -1.0f,   texCount, 0.0f,      
+        width, 0.0f, width,        0.0f, 0.0f, -1.0f,   texCount, texCount/modifier,    
+        -width, 0.0f, width,       0.0f, 0.0f, -1.0f,   0.0f, texCount/modifier,         
         
         // Back 
-        -width, -height, -width,   texCount, 0.0f,        
-        width, -height, -width,    0.0f, 0.0f,         
-        width, 0.0f, -width,     0.0f, texCount/modifier,      
-        -width, 0.0f, -width,    texCount, texCount/modifier,  
+        -width, -height, -width,   0.0f, 0.0f, 1.0f,    texCount, 0.0f,        
+        width, -height, -width,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f,         
+        width, 0.0f, -width,       0.0f, 0.0f, 1.0f,    0.0f, texCount/modifier,      
+        -width, 0.0f, -width,      0.0f, 0.0f, 1.0f,    texCount, texCount/modifier,  
         
         // Left 
-        -width, -height, -width,   0.0f, 0.0f,            
-        -width, -height, width,    texCount, 0.0f,         
-        -width, 0.0f, width,     texCount, texCount/modifier,    
-        -width, 0.0f, -width,    0.0f, texCount/modifier,         
+        -width, -height, -width,   1.0f, 0.0f, 0.0f,    0.0f, 0.0f,            
+        -width, -height, width,    1.0f, 0.0f, 0.0f,    texCount, 0.0f,         
+        -width, 0.0f, width,       1.0f, 0.0f, 0.0f,    texCount, texCount/modifier,    
+        -width, 0.0f, -width,      1.0f, 0.0f, 0.0f,    0.0f, texCount/modifier,         
         
         // Right 
-        width, -height, -width,    texCount, 0.0f,        
-        width, -height, width,     0.0f, 0.0f,            
-        width, 0.0f, width,      0.0f, texCount/modifier,        
-        width, 0.0f, -width,     texCount, texCount/modifier     
+        width, -height, -width,    -1.0f, 0.0f, 0.0f,   texCount, 0.0f,        
+        width, -height, width,     -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,            
+        width, 0.0f, width,        -1.0f, 0.0f, 0.0f,   0.0f, texCount/modifier,        
+        width, 0.0f, -width,       -1.0f, 0.0f, 0.0f,   texCount, texCount/modifier     
     };
     
     std::vector<unsigned int> indices = {
@@ -203,12 +205,12 @@ int main()
                           
     glDisable(GL_CULL_FACE);
 
-    // Create and setup cube vertex data
-    auto [cubeVertices, cubeIndices] = createWalls();
+    auto [cubeVertices, cubeIndices] = createWalls(roomWidth, roomHeight);
     interInd = cubeIndices;
     interPos = cubeVertices;
+
+    auto [portalVert, portalInd] = createWalls(portWidth, portHeight);
     
-    // Create and setup crosshair vertex data
     auto [crosshairVertices, crosshairIndices] = createCrosshair();
     
     // Create VAOs and VBOs for cube
@@ -228,13 +230,49 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_cube);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, cubeIndices.size() * sizeof(unsigned int), cubeIndices.data(), GL_STATIC_DRAW);
     
-    // Position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    // Position attribute (3 floats)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     
-    // Texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    // Normal attribute (3 floats)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    
+    // Texture coord attribute (2 floats)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+    
+    // Unbind VBO and VAO
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    unsigned int VAO_port, VBO_port, EBO_port;
+    glGenVertexArrays(1, &VAO_port);
+    glGenBuffers(1, &VBO_port);
+    glGenBuffers(1, &EBO_port);
+    
+    // Bind VAO first
+    glBindVertexArray(VAO_port);
+    
+    // Bind and set VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_port);
+    glBufferData(GL_ARRAY_BUFFER, portalVert.size() * sizeof(float), portalVert.data(), GL_STATIC_DRAW);
+    
+    // Bind and set EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_port);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, portalInd.size() * sizeof(unsigned int), portalInd.data(), GL_STATIC_DRAW);
+    
+    // Position attribute (3 floats)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    
+    // Normal attribute (3 floats)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
+    // Texture coord attribute (2 floats)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
     
     // Unbind VBO and VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -267,7 +305,7 @@ int main()
     
     // Load and create a texture
     unsigned int texture1;
-    texture1 = loadTexture("/Users/azaid/Documents/Graphics/ogl/src/walltexture.jpg");  // Replace with your texture path
+    texture1 = loadTexture("/Users/azaid/Documents/Graphics/ogl/src/walltexture.jpg");
     
     // Tell the shader to use texture unit 0
     ourShader.use();
@@ -308,8 +346,27 @@ int main()
         
         glBindVertexArray(VAO_cube);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+
+        // Portal
+        ourShader.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
         
-        // Disable depth test so the crosshair always appears on top
+        glm::mat4 portModel = glm::mat4(1.0f);
+        glm::mat4 portView = camera.GetViewMatrix();
+        glm::mat4 portProjection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        if(firstPort != glm::vec3(0,0,0)) {
+          portModel = glm::translate(portModel, firstPort);
+        }
+        ourShader.setMat4("model", portModel);
+        ourShader.setMat4("view", portView);
+        ourShader.setMat4("projection", portProjection);
+        
+        glBindVertexArray(VAO_port);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+
+        //crosshair
         glDisable(GL_DEPTH_TEST);
         
         crosshairShader.use();
@@ -442,29 +499,30 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     double xpos, ypos;
     glfwGetCursorPos(window, &xpos, &ypos);
     for(int i = 0; i < interInd.size(); i = i+3) {
-      int step = 5;
-      unsigned int index1 = interInd[i] * step; //0
-      unsigned int index2 = interInd[i+1] * step; //1
-      unsigned int index3 = interInd[i+2] * step; //2
-      //0,1,2 -> (0,1,2),(5,6,7),(10,11,12)
+      int step = 8;
+      unsigned int index1 = interInd[i] * step;
+      unsigned int index2 = interInd[i+1] * step;
+      unsigned int index3 = interInd[i+2] * step;
+      
       std::vector<glm::vec3> face = {
         glm::vec3(interPos[index1], interPos[index1 + 1], interPos[index1 + 2]),
         glm::vec3(interPos[index2], interPos[index2 + 1], interPos[index2 + 2]),
         glm::vec3(interPos[index3], interPos[index3 + 1], interPos[index3 + 2])
       };
+      
+      glm::vec3 normal = glm::vec3(interPos[index1 + 3], interPos[index1 + 4], interPos[index1 + 5]);
 
       if(firstPort != glm::vec3(0,0,0) && secondPort == glm::vec3(0,0,0)) {
         if(checkIntersection(camera.Position, camera.Front, face, secondPort)) {
-          std::cout<< " Second one!" <<std::endl;
+          std::cout << " Second one!" << std::endl;
           printVec3(secondPort);
         }
       } else {
         if(checkIntersection(camera.Position, camera.Front, face, firstPort)) {
-          std::cout<< " First one!" <<std::endl;
+          std::cout << " First one!" << std::endl;
           printVec3(firstPort);
         }
       }
-
     }
   }
 }

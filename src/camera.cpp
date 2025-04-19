@@ -21,6 +21,10 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;
+    
+    // Store original y position
+    float originalY = Position.y;
+    
     if (direction == FORWARD)
         Position += Front * velocity;
     if (direction == BACKWARD)
@@ -29,6 +33,16 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
         Position -= Right * velocity;
     if (direction == RIGHT)
         Position += Right * velocity;
+    
+    // Handle vertical movement only if space is pressed
+    if (false) {
+        // Allow upward movement (you can adjust the velocity as needed)
+        Position.y += velocity;
+    } else {
+        // If space isn't pressed, restore original y position
+        // This locks the camera to the same height during regular movement
+        Position.y = originalY;
+    }
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
